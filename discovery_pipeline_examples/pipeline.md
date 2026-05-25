@@ -1,0 +1,21 @@
+# A general causal pipleline
+
+This was produced using Perplexity/Gemini. The prompt was:
+
+*I am performing causal discovery and causal inference on health data. I am using Python, especial causallearn, dowhy and econml. I would like a markdown table of three columns: 1) phase (e.g. discovery, testing/refuting, inference, 2) general methods, 3) python packages/methods to use. Please be thorough.*
+
+## Causal Inference \& Discovery Workflow
+
+| Phase | General Methods | Python Packages \& Specific Methods |
+| :-- | :-- | :-- |
+| **1. Causal Discovery**<br>*(Learning the underlying DAG from observational health data)* | **Constraint-based:** PC algorithm, FCI (handles latent confounders/selection bias)<br>**Score-based:** GES (Greedy Equivalence Search)<br>**Functional Causal Models:** Continuous data models like LiNGAM, ANM | **`causal-learn`**<br>-  `causallearn.search.ConstraintBased.PC`<br>-  `causallearn.search.ConstraintBased.FCI`<br>-  `causallearn.search.ScoreBased.GES`<br>-  `causallearn.search.FCMBased.lingam.ICALiNGAM` |
+| **2. Modeling \& Identification**<br>*(Formalizing assumptions and finding the causal estimand)* | **Graph Formulation:** Defining nodes/edges from prior clinical knowledge or discovery outputs.<br>**Identification Rules:** Back-door criterion (confounder adjustment), Front-door criterion (mediators), Instrumental Variables (IV). | **`dowhy`**<br>-  `dowhy.CausalModel(data, treatment, outcome, graph)`<br>-  `model.identify_effect(proceed_when_unidentifiable=True)`<br>*(Returns estimands based on back-door, front-door, or IV)* |
+| **3. Estimation: Average Effects**<br>*(Calculating ATE, ATT, or ATC across the patient cohort)* | **Matching:** Propensity Score Matching (PSM), Distance matching<br>**Weighting:** Inverse Probability of Treatment Weighting (IPTW)<br>**Regression:** Linear regression, G-computation | **`dowhy`**<br>-  `model.estimate_effect(estimand, method_name="backdoor.propensity_score_matching")`<br>-  `method_name="backdoor.propensity_score_weighting"`<br>-  `method_name="backdoor.linear_regression"` |
+| **4. Estimation: Heterogeneous Effects (CATE)**<br>*(Personalized medicine: How effects vary by patient characteristics)* | **Meta-Learners:** T-Learner, S-Learner, X-Learner (good for unbalanced treatment/control groups)<br>**Tree-based:** Causal Forests, Orthogonal Random Forests<br>**Double ML:** Double Machine Learning (DML) for continuous treatments | **`econml` (often called via `dowhy`)**<br>-  `backdoor.econml.metalearners.XLearner`<br>-  `backdoor.econml.orf.CausalForestDML` (excellent for complex clinical features)<br>-  `backdoor.econml.dml.LinearDML` |
+| **5. Testing / Refuting**<br>*(Stress-testing the robustness of your causal estimates)* | **Placebo Treatment:** Replaces true treatment with a random variable.<br>**Random Common Cause:** Adds an independent random variable to the data.<br>**Data Subsetting:** Re-estimates the effect on a random subset.<br>**Sensitivity Analysis:** Simulates an unobserved confounder (e.g., unmeasured frailty). | **`dowhy`**<br>-  `model.refute_estimate(estimand, estimate, method_name="placebo_treatment_refuter")`<br>-  `method_name="random_common_cause"`<br>-  `method_name="data_subset_refuter"`<br>-  `method_name="add_unobserved_common_cause"` |
+
+## Implementation Tips for Health Data
+
+- **Bridging Discovery and Inference:** When transitioning from `causal-learn` to `DoWhy`, you will typically need to extract the adjacency matrix from the `causal-learn` graph object, format it into a GML (Graph Modeling Language) string or a `networkx` Directed Acyclic Graph (DAG), and pass it into the `graph` parameter of `dowhy.CausalModel`.
+- **Handling Unobserved Confounding:** In healthcare data (like stroke or maternity audits), unobserved confounding is almost guaranteed. If you suspect hidden confounders, `causal-learn`'s FCI algorithm is vastly preferable to the PC algorithm during the discovery phase because it explicitly models latent variables.
+- **Model Explainability (SHAP):** Because you work with complex health models, remember that `EconML` estimators have native support for SHAP values via the `shap_values()` method, allowing you to explain which patient features drive the heterogeneous treatment effect (CATE).
