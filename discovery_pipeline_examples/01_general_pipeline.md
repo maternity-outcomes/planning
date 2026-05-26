@@ -6,7 +6,7 @@ This was produced using Perplexity/Gemini. The prompt was:
 
 ## Causal Inference \& Discovery Workflow
 
-Note: Prior to workflow, construct a 'machine learning-ready' data set. Cleaned, encoded. Document how original data was converted into ML-ready data set.
+Note: Prior to workflow, construct a 'machine learning-ready' data set. Cleaned, encoded. Document how original data was converted into ML-ready data set. If required, create a second data set with imputed values where appropriate.
 
 | Phase | General Methods | Python Packages \& Specific Methods |
 | :-- | :-- | :-- |
