@@ -6,6 +6,8 @@ This was produced using Perplexity/Gemini. The prompt was:
 
 ## Causal Inference \& Discovery Workflow
 
+Note: Prior to workflow, construct a 'machine learning-ready' data set. Cleaned, encoded. Document how original data was converted into ML-ready data set.
+
 | Phase | General Methods | Python Packages \& Specific Methods |
 | :-- | :-- | :-- |
 | **1. Causal Discovery**<br>*(Learning the underlying DAG from observational health data)* | **Constraint-based:** PC algorithm, FCI (handles latent confounders/selection bias)<br>**Score-based:** GES (Greedy Equivalence Search)<br>**Functional Causal Models:** Continuous data models like LiNGAM, ANM | **`causal-learn`**<br>-  `causallearn.search.ConstraintBased.PC`<br>-  `causallearn.search.ConstraintBased.FCI`<br>-  `causallearn.search.ScoreBased.GES`<br>-  `causallearn.search.FCMBased.lingam.ICALiNGAM` |
